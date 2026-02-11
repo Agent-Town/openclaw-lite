@@ -6,6 +6,7 @@ const { createSessionManager } = require("./session");
 const { registerToolsRoutes } = require("./routes/tools");
 const { registerLlmRoutes } = require("./routes/llm");
 const { registerHouseRoutes } = require("./routes/house");
+const { registerAgentChatRoutes } = require("./routes/agent_chat");
 const { registerTestOnlyRoutes } = require("./routes/test_only");
 
 function createApp() {
@@ -81,12 +82,17 @@ function createApp() {
       llm: {
         codexCli: process.env.OPENCLAW_LITE_CODEX_CLI === "1",
       },
+      agentChat: {
+        route: "/api/agent/chat",
+        localhostOnly: process.env.OPENCLAW_LITE_AGENT_CHAT_ALLOW_REMOTE !== "1",
+      },
     });
   });
 
   registerToolsRoutes(app);
   const llmRuntime = registerLlmRoutes(app);
   registerHouseRoutes(app, { ensureSession: sessionManager.ensureSession });
+  registerAgentChatRoutes(app, { ensureSession: sessionManager.ensureSession });
   registerTestOnlyRoutes(app, {
     resetAllSessions: sessionManager.resetAllSessions,
     getLlmStats: llmRuntime.getLlmStats,

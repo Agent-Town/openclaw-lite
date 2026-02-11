@@ -166,6 +166,39 @@ Policy:
 
 ---
 
+## Agent Chat Backend (OpenClaw Session Bridge)
+
+### POST `/api/agent/chat`
+
+Purpose:
+- Provide a server-backed assistant reply path for UI surfaces that need a real OpenClaw session turn.
+- Enforce an explicit action allowlist at the HTTP boundary.
+
+Request:
+```json
+{ "action": "chat.guide", "message": "How do I recover my house?" }
+```
+
+Notes:
+- `action` defaults to `chat.guide`.
+- Only `chat.guide` is allowed in v1.
+- `message` is required and is trimmed/clamped server-side.
+- By default this endpoint is localhost-only unless `OPENCLAW_LITE_AGENT_CHAT_ALLOW_REMOTE=1`.
+
+Response (success):
+```json
+{ "ok": true, "backend": "openclaw-agent", "action": "chat.guide", "reply": "..." }
+```
+
+Errors:
+- `MISSING_MESSAGE`
+- `ACTION_NOT_ALLOWED`
+- `LOCALHOST_ONLY`
+- `OPENCLAW_CLI_NOT_FOUND`
+- `AGENT_BACKEND_FAILED`
+
+---
+
 ## LLM Proxy (OpenAI-Compatible)
 
 Browsers call the same-origin proxy; the proxy forwards to OpenAI in production.
