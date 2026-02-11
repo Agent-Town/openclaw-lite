@@ -166,6 +166,43 @@ Policy:
 
 ---
 
+## Agent Chat Backend (Browser-Agent Surface)
+
+### POST `/api/agent/chat`
+
+Purpose:
+- Provide a strict, allowlisted HTTP surface for browser chat integrations.
+- Keep contract-level guardrails explicit at the server boundary.
+
+Request:
+```json
+{ "action": "chat.guide", "message": "How do I recover my house?" }
+```
+
+Notes:
+- `action` defaults to `chat.guide`.
+- Only `chat.guide` is allowed in v1.
+- `message` is required and is trimmed/clamped server-side.
+- By default this endpoint is localhost-only unless `OPENCLAW_LITE_AGENT_CHAT_ALLOW_REMOTE=1`.
+
+Response (success, test mode):
+```json
+{ "ok": true, "backend": "openclaw-lite-browser-agent-test", "action": "chat.guide", "reply": "..." }
+```
+
+Response (non-test runtime):
+```json
+{ "ok": false, "error": "BROWSER_AGENT_ONLY", "message": "OpenClaw Lite agent runs in the browser worker. Use the in-browser runtime chat path." }
+```
+
+Errors:
+- `MISSING_MESSAGE`
+- `ACTION_NOT_ALLOWED`
+- `LOCALHOST_ONLY`
+- `BROWSER_AGENT_ONLY`
+
+---
+
 ## LLM Proxy (OpenAI-Compatible)
 
 Browsers call the same-origin proxy; the proxy forwards to OpenAI in production.

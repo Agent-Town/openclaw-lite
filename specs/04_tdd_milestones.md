@@ -129,3 +129,14 @@ This track is TDD-first and adds incremental structure gates for:
 - LLM router extraction
 - house/wallet router extraction
 - test-only fixture isolation and final backend module budgets
+
+## M32 — Agent Chat Backend (Allowlisted Action Surface)
+
+Done when:
+- `POST /api/agent/chat` accepts `chat.guide` and returns deterministic test reply in `NODE_ENV=test`.
+- In non-test runtime, endpoint returns `BROWSER_AGENT_ONLY` (no external OpenClaw dependency).
+- Unknown actions are rejected with `ACTION_NOT_ALLOWED`.
+- Empty messages are rejected with `MISSING_MESSAGE`.
+
+Test:
+- `e2e/openclaw_lite/32_agent_chat_backend.spec.js`
