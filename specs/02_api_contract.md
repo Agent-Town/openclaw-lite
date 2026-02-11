@@ -166,13 +166,13 @@ Policy:
 
 ---
 
-## Agent Chat Backend (OpenClaw Session Bridge)
+## Agent Chat Backend (Browser-Agent Surface)
 
 ### POST `/api/agent/chat`
 
 Purpose:
-- Provide a server-backed assistant reply path for UI surfaces that need a real OpenClaw session turn.
-- Enforce an explicit action allowlist at the HTTP boundary.
+- Provide a strict, allowlisted HTTP surface for browser chat integrations.
+- Keep contract-level guardrails explicit at the server boundary.
 
 Request:
 ```json
@@ -185,17 +185,21 @@ Notes:
 - `message` is required and is trimmed/clamped server-side.
 - By default this endpoint is localhost-only unless `OPENCLAW_LITE_AGENT_CHAT_ALLOW_REMOTE=1`.
 
-Response (success):
+Response (success, test mode):
 ```json
-{ "ok": true, "backend": "openclaw-agent", "action": "chat.guide", "reply": "..." }
+{ "ok": true, "backend": "openclaw-lite-browser-agent-test", "action": "chat.guide", "reply": "..." }
+```
+
+Response (non-test runtime):
+```json
+{ "ok": false, "error": "BROWSER_AGENT_ONLY", "message": "OpenClaw Lite agent runs in the browser worker. Use the in-browser runtime chat path." }
 ```
 
 Errors:
 - `MISSING_MESSAGE`
 - `ACTION_NOT_ALLOWED`
 - `LOCALHOST_ONLY`
-- `OPENCLAW_CLI_NOT_FOUND`
-- `AGENT_BACKEND_FAILED`
+- `BROWSER_AGENT_ONLY`
 
 ---
 

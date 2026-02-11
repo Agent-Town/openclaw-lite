@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { resetServer } = require("./helpers/backend_modularity");
+const { resetServer, startStandaloneServer } = require("./helpers/backend_modularity");
 
 test.describe("M32: agent chat backend", () => {
   test.beforeEach(async ({ request }) => {
@@ -19,7 +19,7 @@ test.describe("M32: agent chat backend", () => {
     const body = await res.json();
     expect(body?.ok).toBe(true);
     expect(body?.action).toBe("chat.guide");
-    expect(body?.backend).toBe("openclaw-agent-test");
+    expect(body?.backend).toBe("openclaw-lite-browser-agent-test");
     expect(String(body?.reply || "")).toContain("How do I recover my house?");
   });
 
@@ -51,5 +51,22 @@ test.describe("M32: agent chat backend", () => {
     const body = await res.json();
     expect(body?.ok).toBe(false);
     expect(body?.error).toBe("MISSING_MESSAGE");
+  });
+
+  test("non-test runtime reports browser-agent-only instead of delegating to external OpenClaw", async () => {
+    const server = await startStandaloneServer({ NODE_ENV: "development" });
+    try {
+      const res = await fetch(`${server.origin}/api/agent/chat`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "chat.guide", message: "hello" }),
+      });
+      expect(res.status).toBe(409);
+      const body = await res.json();
+      expect(body?.ok).toBe(false);
+      expect(body?.error).toBe("BROWSER_AGENT_ONLY");
+    } finally {
+      await server.stop();
+    }
   });
 });
